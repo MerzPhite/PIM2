@@ -1,0 +1,202 @@
+#timeline {
+    margin: 20px auto;
+    padding: 20px;
+    max-height: 600px;
+    overflow-y: auto;
+    width: 80%; // Increased width for better responsiveness
+    max-width: 1000px; // Added max-width for larger screens
+    background-color: white;
+    
+}
+
+.container {
+    width: 80%; // Increased width for better responsiveness
+    max-width: 1000px; // Added max-width for larger screens
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.timeline-event {
+    background-color: #ffffff;
+    border: 1px solid #e1e8ed;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 0.5s ease-out;
+}
+
+.timeline-event:hover {
+    background-color: #f5f8fa;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 15px rgba(247, 251, 5, 0.819);
+    animation: glowYellow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glowYellow {
+    from {
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    to {
+        box-shadow: 0 0 10px 5px rgba(255, 255, 0, 0.5);
+    }
+}
+
+.timeline-event strong {
+    color: #1da1f2;
+    font-weight: bold;
+}
+
+.timeline-event .time {
+    color: #657786;
+    font-size: 0.9em;
+}
+
+.timeline-event .greeting {
+    font-style: italic;
+    color: #14171a;
+}
+
+.timeline-event .description {
+    margin-top: 8px;
+    color: #14171a;
+}
+
+.timeline-event.fade-in {
+    opacity: 1;
+    transform: translateY(-20px);
+}
+
+.timeline-event.fade-out {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.timeline-event.slide-down {
+    animation: slideDown 2s ease-out forwards;
+}
+@media (min-width: 768px) {
+    .timeline-event {
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+        width: 90%;
+    }
+}
+
+@media (max-width: 767px) {
+    .timeline-event {
+        width: 95%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+.weather-animation {
+    width: 50px;
+    height: 50px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.sunny {
+    background-image: url('Animations/sunny.mp4');
+}
+
+.partly-cloudy {
+    background-image: url('');
+}
+
+.night-time-event {
+    background: linear-gradient(to right, rgba(6, 29, 69, 0.7), rgba(51, 8, 94, 0.7));
+    color: rgba(255, 255, 255, 0.7);
+
+}
+
+.day-time-event {
+    background: linear-gradient(45deg, #EFEFEF, #D6D6D6, #C3C3C3);
+}
+
+.timeline-event.random-fact {
+    background: linear-gradient(45deg, #F4B875, #E98B63, #D06A3C, #9C4414, #6A2B05)
+}
+
+.welcome-message {
+    background: linear-gradient(45deg, #fffce3, #ded488, #7d6a2b);
+    color: white;
+    border: 2px solid #7d6a2b;
+    padding: 15px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-message::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    animation: shimmer 6s infinite;
+    transform: rotate(30deg);
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%) rotate(30deg);
+    }
+    100% {
+        transform: translateX(100%) rotate(30deg);
+    }
+}
+
+.welcome-message h2 {
+    margin-top: 0;
+}
+
+.day-background {
+    background-image: url('Pictures/barcelonaatnight.jpg');
+    background-size: cover;
+    background-position: center;
+    transition: background-image 10s ease-in-out;
+}
+
+.night-background {
+    background-image: url('Animations');
+    background-size:cover;
+    background-position: center;
+    transition: background-image 5s ease-in-out;
+}
+
+/* Add this new rule */
+.transitioning-background {
+    animation: backgroundTransition 5s ease-in-out;
+}
+
+/* Add this new keyframe animation */
+@keyframes backgroundTransition {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
