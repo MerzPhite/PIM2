@@ -5,52 +5,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>People In Motion</title>
+    <title>P.I.M</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.43/moment-timezone-with-data.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     
 </head>
 <body class="bg-gray-100 font-sans">
 
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-4xl font-bold text-center mb-8">People In Motion</h1>
-        
-        <div class="mb-4">
-            <label for="timezone" class="block text-sm font-medium text-gray-700 text-center">Select your timezone:</label>
-            <select id="timezone" class="mt-1 block w-1/4 mx-auto py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                <!-- Timezone options will be populated by JavaScript -->
-            </select>
+        <div class="md:flex md:justify-between md:items-start">
+            <div>
+                <h1 class="text-4xl font-bold mb-4">P.I.M</h1>
+                <div class="mb-4">
+                    <label for="timezone" class="text-sm font-medium text-gray-700 mr-2">Timezone:</label>
+                    <select id="timezone" class="block w-32 py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <!-- Timezone options will be populated by JavaScript -->
+                    </select>
+                </div>
+            </div>
+            
+            <div class="md:flex-grow">
+                <!-- Moved time and timeline up for desktop, under title for mobile -->
+                <div id="current-time" class="text-2xl font-bold text-center mb-4"></div>
+                
+                <div id="timeline" class="flex flex-col-reverse mb-4">
+                    <!-- Timeline events will be populated by JavaScript -->
+                </div>
+            </div>
         </div>
-        
-        <div id="current-time" class="text-2xl font-bold text-center mb-4"></div>
-        
-        <div id="timeline" class="flex flex-col-reverse mb-16">
-            <!-- Timeline events will be populated by JavaScript -->
+
+        <!-- Updated advertisement space -->
+        <div id="ad-space" class="bg-gray-200 p-4 h-24 flex items-center justify-center fixed bottom-0 left-0 right-0 mx-auto" style="width: 80%; max-width: 1000px;">
+            <p class="text-gray-500">Advertisement Space</p>
         </div>
     </div>
 
-    <div class="fixed top-4 right-4 flex flex-col space-y-2">
-        <button id="screensaver-toggle" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-2 rounded">
-            <span class="text-xs">Screensaver</span>
-        </button>
-        <button id="mute-toggle" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-2 rounded transition-colors duration-300">
-            <span class="text-[14px]">Mute</span>
-        </button>
-        <script>
-            const muteToggle = document.getElementById('mute-toggle');
-            let isMuted = false;
-            
-            muteToggle.addEventListener('click', () => {
-                isMuted = !isMuted;
-                muteToggle.textContent = isMuted ? 'Unmute' : 'Mute';
-                muteToggle.classList.toggle('bg-green-500', isMuted);
-                muteToggle.classList.toggle('hover:bg-green-700', isMuted);
-                muteToggle.classList.toggle('bg-red-500', !isMuted);
-                muteToggle.classList.toggle('hover:bg-red-700', !isMuted);
-            });
-        </script>
+    <div class="fixed top-4 right-4">
+        <div class="relative">
+            <button id="menu-toggle" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                Menu
+            </button>
+            <div id="menu-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg hidden">
+                <button id="screensaver-toggle" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    Screensaver
+                </button>
+                <button id="mute-toggle" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    Mute
+                </button>
+            </div>
+        </div>
     </div>
 
     <div id="screensaver" class="fixed inset-0 bg-black z-50 hidden flex items-center justify-center">
@@ -120,6 +126,34 @@
                     toggleScreensaver();
                 }
             });
+        });
+    </script>
+
+    <script>
+        // Menu toggle functionality
+        const menuToggle = document.getElementById('menu-toggle');
+        const menuDropdown = document.getElementById('menu-dropdown');
+        
+        menuToggle.addEventListener('click', () => {
+            menuDropdown.classList.toggle('hidden');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!menuToggle.contains(event.target) && !menuDropdown.contains(event.target)) {
+                menuDropdown.classList.add('hidden');
+            }
+        });
+
+        // Existing mute toggle functionality
+        const muteToggle = document.getElementById('mute-toggle');
+        let isMuted = false;
+        
+        muteToggle.addEventListener('click', () => {
+            isMuted = !isMuted;
+            muteToggle.textContent = isMuted ? 'Unmute' : 'Mute';
+            muteToggle.classList.toggle('text-green-700', isMuted);
+            muteToggle.classList.toggle('text-red-700', !isMuted);
         });
     </script>
 
