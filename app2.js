@@ -30,30 +30,56 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial update
     updateLondonTime();
 
-     // Add this function to create and display the welcome message
-     function displayWelcomeMessage() {
-        const welcomeEvent = {
-            country: 'Welcome',
-            greeting: 'Hello!',
-            description: 'Welcome to People in Motion! This page displays a real-time timeline of events happening around the world. You\'ll see wake-up times, bedtimes, and other interesting events from various countries, all adjusted to your local time zone. Watch as new events appear and disappear throughout the day, giving you a glimpse into the daily rhythms of different cultures across the globe.',
-            isWelcomeMessage: true
-        };
-
-        createEventElement(welcomeEvent).then(eventElement => {
-            timeline.appendChild(eventElement);
-            eventElement.classList.add('slide-down');
-            
-            // Set a timeout to remove the welcome message after 30 seconds
-            setTimeout(() => {
-                eventElement.style.opacity = '0';
-                eventElement.style.transition = 'opacity 1s';
-                setTimeout(() => eventElement.remove(), 7200000); // Remove after fade out (2 hours)
-            }, 7200000); // 2 hours
-        });
+  
+    
+    async function getNasaPhotoOfTheDay() {
+        const apiKey = '95TrrbNbdYnxMnx5MTObRmZFsDy4qxKrlqZfulIC';
+        const url = `https://api.nasa.gov/planetary/apod?api_key=${apiKey}`;
+        
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log('NASA API response:', data); // Add this line for debugging
+            return data;
+        } catch (error) {
+            console.error('Error fetching NASA photo of the day:', error);
+            return null;
+        }
     }
+    
+    async function addNasaPhotoEvent() {
+        const photoData = await getNasaPhotoOfTheDay();
+        if (photoData) {
+            const newEvent = {
+                time: '+1', // This will make the event appear 1 second from now
+                country: 'NASA',
+                greeting: 'NASA Photo of the Day',
+                description: photoData.explanation,
+                link: `<a href="${photoData.url}" target="_blank">View Photo</a>`,
+                customClasses: ['nasa-photo-event'],
+                backgroundImage: photoData.url
+            };
+            
+            const eventElement = await createEventElement(newEvent);
+            timeline.appendChild(eventElement);
+            setTimeout(() => {
+                eventElement.classList.add('slide-down');
+            }, 10);
+            newEventSound.play();
+            scrollTimelineToTop();
+        }
+    }
+    
+    // Call this function to add the NASA photo event
+    addNasaPhotoEvent();
+        
+        // ... existing code ...
+ 
 
-    // Call the function to display the welcome message when the page loads
-    displayWelcomeMessage();
+    
     
     // Global events data
     let events = [
@@ -73,68 +99,66 @@ document.addEventListener('DOMContentLoaded', () => {
         // ... existing bedtime events ...
 
         // Wake-up times
-        { time: '07:00', country: 'Spain', greeting: 'Buenos días', description: 'Good morning from Spain. It is currently the average wake-up time in Spain', addSpainTime: true },
-        { time: '10:30', country: 'Argentina', greeting: 'Buen día', description: 'Good morning from Argentina. It is currently the average wake-up time in Argentina', addArgentinaTime: true },
-        { time: '22:15', country: 'South Korea', greeting: '안녕하세요', description: 'Good morning from South Korea. It is currently the average wake-up time in South Korea', addSouthKoreaTime: true },
-        { time: '13:00', country: 'Mexico', greeting: 'Buenos días', description: 'Good morning from Mexico. It is currently the average wake-up time in Mexico', addMexicoTime: true },
-        { time: '07:45', country: 'Portugal', greeting: 'Bom dia', description: 'Good morning from Portugal. It is currently the average wake-up time in Portugal', addPortugalTime: true },
-        { time: '04:45', country: 'Turkey', greeting: 'Günaydın', description: 'Good morning from Turkey. It is currently the average wake-up time in Turkey', addTurkeyTime: true },
-        { time: '04:50', country: 'Saudi Arabia', greeting: 'صباح الخير', description: 'Good morning from Saudi Arabia. It is currently the average wake-up time in Saudi Arabia', addSaudiArabiaTime: true },
-        { time: '04:45', country: 'South Africa', greeting: 'Goeie môre', description: 'Good morning from South Africa. It is currently the average wake-up time in South Africa', addSouthAfricaTime: true },
-        { time: '12:00', country: 'Canada', greeting: 'Good morning', description: 'Good morning from Canada (Toronto). It is currently the average wake-up time in Toronto', addCanadaTime: true },
-        { time: '07:15', country: 'United Kingdom', greeting: 'Good morning', description: 'Good morning from the United Kingdom. It is currently the average wake-up time in the UK', addUKTime: true },
-        { time: '06:30', country: 'Netherlands', greeting: 'Goedemorgen', description: 'Good morning from the Netherlands. It is currently the average wake-up time in the Netherlands', addNetherlandsTime: true },
-        { time: '11:45', country: 'Colombia', greeting: 'Buenos días', description: 'Good morning from Colombia. It is currently the average wake-up time in Colombia', addColombiaTime: true },
-        { time: '06:30', country: 'Belgium', greeting: 'Goedemorgen', description: 'Good morning from Belgium. It is currently the average wake-up time in Belgium', addBelgiumTime: true },
-        { time: '06:25', country: 'Denmark', greeting: 'God morgen', description: 'Good morning from Denmark. It is currently the average wake-up time in Denmark', addDenmarkTime: true },
-        { time: '06:15', country: 'Sweden', greeting: 'God morgon', description: 'Good morning from Sweden. It is currently the average wake-up time in Sweden', addSwedenTime: true },
-        { time: '06:00', country: 'Norway', greeting: 'God morgen', description: 'Good morning from Norway. It is currently the average wake-up time in Norway', addNorwayTime: true },
-        { time: '05:00', country: 'Finland', greeting: 'Hyvää huomenta', description: 'Good morning from Finland. It is currently the average wake-up time in Finland', addFinlandTime: true },
-        { time: '06:15', country: 'Switzerland', greeting: 'Guten Morgen', description: 'Good morning from Switzerland. It is currently the average wake-up time in Switzerland', addSwitzerlandTime: true },
-        { time: '23:30', country: 'China', greeting: '早上好', description: 'Good morning from China. It is currently the average wake-up time in China', addChinaTime: true },
-        { time: '23:15', country: 'Malaysia', greeting: 'Selamat pagi', description: 'Good morning from Malaysia. It is currently the average wake-up time in Malaysia', addMalaysiaTime: true },
-        { time: '00:00', country: 'Thailand', greeting: 'สวัสดีตอนเช้า', description: 'Good morning from Thailand. It is currently the average wake-up time in Thailand', addThailandTime: true },
-        { time: '23:00', country: 'Singapore', greeting: 'Good morning', description: 'Good morning from Singapore. It is currently the average wake-up time in Singapore', addSingaporeTime: true },
-        { time: '23:45', country: 'Vietnam', greeting: 'Chào buổi sáng', description: 'Good morning from Vietnam. It is currently the average wake-up time in Vietnam', addVietnamTime: true },
-        { time: '06:30', country: 'Poland', greeting: 'Dzień dobry', description: 'Good morning from Poland. It is currently the average wake-up time in Poland', addPolandTime: true },
-        { time: '10:00', country: 'Chile', greeting: 'Buenos días', description: 'Good morning from Chile. It is currently the average wake-up time in Chile', addChileTime: true },
-
+        { time: '11:35:15', country: 'Spain', greeting: 'Buenos días', description: 'Good morning from Spain. It is currently the average wake-up time in Spain', addSpainTime: true, checkWeather: 'Madrid', customClasses: ['waketime-event'] },
+        { time: '10:30', country: 'Argentina', greeting: 'Buen día', description: 'Good morning from Argentina. It is currently the average wake-up time in Argentina', addArgentinaTime: true, checkWeather: 'Buenos Aires', customClasses: ['waketime-event'] },
+        { time: '22:15', country: 'South Korea', greeting: '안녕하세요', description: 'Good morning from South Korea. It is currently the average wake-up time in South Korea', addSouthKoreaTime: true, checkWeather: 'Seoul', customClasses: ['waketime-event'] },
+        { time: '13:00', country: 'Mexico', greeting: 'Buenos días', description: 'Good morning from Mexico. It is currently the average wake-up time in Mexico', addMexicoTime: true, checkWeather: 'Mexico City', customClasses: ['waketime-event'] },
+        { time: '07:45', country: 'Portugal', greeting: 'Bom dia', description: 'Good morning from Portugal. It is currently the average wake-up time in Portugal', addPortugalTime: true, checkWeather: 'Lisbon', customClasses: ['waketime-event'] },
+        { time: '04:45', country: 'Turkey', greeting: 'Günaydın', description: 'Good morning from Turkey. It is currently the average wake-up time in Turkey', addTurkeyTime: true, checkWeather: 'Istanbul', customClasses: ['waketime-event'] },
+        { time: '04:50', country: 'Saudi Arabia', greeting: 'صباح الخير', description: 'Good morning from Saudi Arabia. It is currently the average wake-up time in Saudi Arabia', addSaudiArabiaTime: true, checkWeather: 'Riyadh', customClasses: ['waketime-event'] },
+        { time: '04:45', country: 'South Africa', greeting: 'Goeie môre', description: 'Good morning from South Africa. It is currently the average wake-up time in South Africa', addSouthAfricaTime: true, checkWeather: 'Johannesburg', customClasses: ['waketime-event'] },
+        { time: '12:00', country: 'Canada', greeting: 'Good morning', description: 'Good morning from Canada (Toronto). It is currently the average wake-up time in Toronto', addCanadaTime: true, checkWeather: 'Toronto', customClasses: ['waketime-event'] },
+        { time: '07:15', country: 'United Kingdom', greeting: 'Good morning', description: 'Good morning from the United Kingdom. It is currently the average wake-up time in the UK', addUKTime: true, checkWeather: 'London', customClasses: ['waketime-event'] },
+        { time: '06:30', country: 'Netherlands', greeting: 'Goedemorgen', description: 'Good morning from the Netherlands. It is currently the average wake-up time in the Netherlands', addNetherlandsTime: true, checkWeather: 'Amsterdam', customClasses: ['waketime-event'] },
+        { time: '11:45', country: 'Colombia', greeting: 'Buenos días', description: 'Good morning from Colombia. It is currently the average wake-up time in Colombia', addColombiaTime: true, checkWeather: 'Bogota', customClasses: ['waketime-event'] },
+        { time: '06:30', country: 'Belgium', greeting: 'Goedemorgen', description: 'Good morning from Belgium. It is currently the average wake-up time in Belgium', addBelgiumTime: true, checkWeather: 'Brussels', customClasses: ['waketime-event'] },
+        { time: '06:25', country: 'Denmark', greeting: 'God morgen', description: 'Good morning from Denmark. It is currently the average wake-up time in Denmark', addDenmarkTime: true, checkWeather: 'Copenhagen', customClasses: ['waketime-event'] },
+        { time: '06:15', country: 'Sweden', greeting: 'God morgon', description: 'Good morning from Sweden. It is currently the average wake-up time in Sweden', addSwedenTime: true, checkWeather: 'Stockholm', customClasses: ['waketime-event'] },
+        { time: '06:00', country: 'Norway', greeting: 'God morgen', description: 'Good morning from Norway. It is currently the average wake-up time in Norway', addNorwayTime: true, checkWeather: 'Oslo', customClasses: ['waketime-event'] },
+        { time: '05:00', country: 'Finland', greeting: 'Hyvää huomenta', description: 'Good morning from Finland. It is currently the average wake-up time in Finland', addFinlandTime: true, checkWeather: 'Helsinki', customClasses: ['waketime-event'] },
+        { time: '06:15', country: 'Switzerland', greeting: 'Guten Morgen', description: 'Good morning from Switzerland. It is currently the average wake-up time in Switzerland', addSwitzerlandTime: true, checkWeather: 'Zurich', customClasses: ['waketime-event'] },
+        { time: '23:30', country: 'China', greeting: '早上好', description: 'Good morning from China. It is currently the average wake-up time in China', addChinaTime: true, checkWeather: 'Beijing', customClasses: ['waketime-event'] },
+        { time: '23:15', country: 'Malaysia', greeting: 'Selamat pagi', description: 'Good morning from Malaysia. It is currently the average wake-up time in Malaysia', addMalaysiaTime: true, checkWeather: 'Kuala Lumpur', customClasses: ['waketime-event'] },
+        { time: '00:00', country: 'Thailand', greeting: 'สวัสดีตอนเช้า', description: 'Good morning from Thailand. It is currently the average wake-up time in Thailand', addThailandTime: true, checkWeather: 'Bangkok', customClasses: ['waketime-event'] },
+        { time: '23:00', country: 'Singapore', greeting: 'Good morning', description: 'Good morning from Singapore. It is currently the average wake-up time in Singapore', addSingaporeTime: true, checkWeather: 'Singapore', customClasses: ['waketime-event'] },
+        { time: '23:45', country: 'Vietnam', greeting: 'Chào buổi sáng', description: 'Good morning from Vietnam. It is currently the average wake-up time in Vietnam', addVietnamTime: true, checkWeather: 'Ho Chi Minh City', customClasses: ['waketime-event'] },
+        { time: '06:30', country: 'Poland', greeting: 'Dzień dobry', description: 'Good morning from Poland. It is currently the average wake-up time in Poland', addPolandTime: true, checkWeather: 'Warsaw', customClasses: ['waketime-event'] },
+        { time: '10:00', country: 'Chile', greeting: 'Buenos días', description: 'Good morning from Chile. It is currently the average wake-up time in Chile', addChileTime: true, checkWeather: 'Santiago', customClasses: ['waketime-event'] },
 // ... other events ...
 
-        // AVERAGE BEDTIMES
-        { time: '22:30', country: 'France', greeting: 'Bonne nuit', description: 'Good night from France. It is currently the average bedtime in France', addFranceTime: true },
-        { time: '21:54', country: 'Japan', greeting: 'おやすみなさい', description: 'Good night from Japan. It is currently the average bedtime in Japan', addJapanTime: true },
-        { time: '19:30', country: 'India', greeting: 'शुभ रात्रि', description: 'Good night from India. It is currently the average bedtime in India', addIndiaTime: true },
-        { time: '21:00', country: 'UAE', greeting: 'تصبح على خير', description: 'Good night from UAE. It is currently the average bedtime in UAE', addUAETime: true },
-        { time: '19:04', country: 'Germany', greeting: 'Gute Nacht', description: 'Good night from Germany. It is currently the average bedtime in Germany', addGermanyTime: true },
-        { time: '22:00', country: 'Brazil', greeting: 'Boa noite', description: 'Good night from Brazil. It is currently the average bedtime in Brazil', addBrazilTime: true },
-        { time: '22:00', country: 'USA', greeting: 'Good night', description: 'Good night from USA. It is currently the average bedtime in USA', addUSATime: true },
-        { time: '13:00', country: 'Australia', greeting: 'Sleep well', description: 'Good night from Australia. It is currently the average bedtime in Australia', addAustraliaTime: true },
-        { time: '20:00', country: 'Kenya', greeting: 'Lala salama', description: 'Good night from Kenya. It is currently the average bedtime in Kenya', addKenyaTime: true },
-        { time: '20:00', country: 'Russia', greeting: 'Спокойной ночи', description: 'Good night from Russia. It is currently the average bedtime in Russia', addRussiaTime: true },
-        { time: '21:00', country: 'Italy', greeting: 'Buonanotte', description: 'Good night from Italy. It is currently the average bedtime in Italy', addItalyTime: true },
-        { time: '23:15', country: 'Spain', greeting: 'Buenas noches', description: 'Good night from Spain. It is currently the average bedtime in Spain', addSpainTime: true },
-        { time: '22:45', country: 'Netherlands', greeting: 'Welterusten', description: 'Good night from the Netherlands. It is currently the average bedtime in the Netherlands', addNetherlandsTime: true },
-        { time: '03:05', country: 'Argentina', greeting: 'Buenas noches', description: 'Good night from Argentina. It is currently the average bedtime in Argentina', addArgentinaTime: true },
-        { time: '15:03', country: 'South Korea', greeting: '안녕히 주무세요', description: 'Good night from South Korea. It is currently the average bedtime in South Korea', addSouthKoreaTime: true },
-        { time: '06:00', country: 'Mexico', greeting: 'Buenas noches', description: 'Good night from Mexico. It is currently the average bedtime in Mexico', addMexicoTime: true },
-        { time: '23:58', country: 'Portugal', greeting: 'Boa noite', description: 'Good night from Portugal. It is currently the average bedtime in Portugal', addPortugalTime: true },
-        { time: '20:55', country: 'Turkey', greeting: 'İyi geceler', description: 'Good night from Turkey. It is currently the average bedtime in Turkey', addTurkeyTime: true },
-        { time: '20:54', country: 'Saudi Arabia', greeting: 'تصبح على خير', description: 'Good night from Saudi Arabia. It is currently the average bedtime in Saudi Arabia', addSaudiArabiaTime: true },
-        { time: '21:50', country: 'South Africa', greeting: 'Goeie nag', description: 'Good night from South Africa. It is currently the average bedtime in South Africa', addSouthAfricaTime: true },
-        { time: '04:49', country: 'Canada', greeting: 'Good night', description: 'Good night from Canada (Toronto). It is currently the average bedtime in Toronto', addCanadaTime: true },
-        { time: '23:47', country: 'United Kingdom', greeting: 'Good night', description: 'Good night from the United Kingdom. It is currently the average bedtime in the UK', addUKTime: true },
-        { time: '04:42', country: 'Colombia', greeting: 'Buenas noches', description: 'Good night from Colombia. It is currently the average bedtime in Colombia', addColombiaTime: true },
-        { time: '22:40', country: 'Belgium', greeting: 'Goedenacht', description: 'Good night from Belgium. It is currently the average bedtime in Belgium', addBelgiumTime: true },
-        { time: '22:38', country: 'Denmark', greeting: 'Godnat', description: 'Good night from Denmark. It is currently the average bedtime in Denmark', addDenmarkTime: true },
-        { time: '22:35', country: 'Sweden', greeting: 'God natt', description: 'Good night from Sweden. It is currently the average bedtime in Sweden', addSwedenTime: true },
-        { time: '22:30', country: 'Norway', greeting: 'God natt', description: 'Good night from Norway. It is currently the average bedtime in Norway', addNorwayTime: true },
-        { time: '21:28', country: 'Finland', greeting: 'Hyvää yötä', description: 'Good night from Finland. It is currently the average bedtime in Finland', addFinlandTime: true },
-        { time: '22:25', country: 'Switzerland', greeting: 'Gute Nacht', description: 'Good night from Switzerland. It is currently the average bedtime in Switzerland', addSwitzerlandTime: true },
-        { time: '15:20', country: 'China', greeting: '晚安', description: 'Good night from China. It is currently the average bedtime in China', addChinaTime: true },
-        { time: '15:18', country: 'Malaysia', greeting: 'Selamat malam', description: 'Good night from Malaysia. It is currently the average bedtime in Malaysia', addMalaysiaTime: true },
-        { time: '16:15', country: 'Thailand', greeting: 'ราตรีสวัสดิ์', description: 'Good night from Thailand. It is currently the average bedtime in Thailand', addThailandTime: true },
-
+// AVERAGE BEDTIMES (in alphabetical order by country)
+{ time: '03:05', country: 'Argentina', greeting: 'Buenas noches', description: 'Good night from Argentina. It is currently the average bedtime in Argentina', addArgentinaTime: true, checkWeather: 'Buenos Aires', customClasses: ['bedtime-event'] },
+{ time: '13:00', country: 'Australia', greeting: 'Sleep well', description: 'Good night from Australia. It is currently the average bedtime in Australia', addAustraliaTime: true, checkWeather: 'Canberra', customClasses: ['bedtime-event'] },
+{ time: '22:40', country: 'Belgium', greeting: 'Goedenacht', description: 'Good night from Belgium. It is currently the average bedtime in Belgium', addBelgiumTime: true, checkWeather: 'Brussels', customClasses: ['bedtime-event'] },
+{ time: '22:00', country: 'Brazil', greeting: 'Boa noite', description: 'Good night from Brazil. It is currently the average bedtime in Brazil', addBrazilTime: true, checkWeather: 'Sao Paulo', customClasses: ['bedtime-event'] },
+{ time: '04:49', country: 'Canada', greeting: 'Good night', description: 'Good night from Canada (Toronto). It is currently the average bedtime in Toronto', addCanadaTime: true, checkWeather: 'Toronto', customClasses: ['bedtime-event'] },
+{ time: '15:20', country: 'China', greeting: '晚安', description: 'Good night from China. It is currently the average bedtime in China', addChinaTime: true, checkWeather: 'Beijing', customClasses: ['bedtime-event'] },
+{ time: '04:42', country: 'Colombia', greeting: 'Buenas noches', description: 'Good night from Colombia. It is currently the average bedtime in Colombia', addColombiaTime: true, checkWeather: 'Bogota', customClasses: ['bedtime-event'] },
+{ time: '22:38', country: 'Denmark', greeting: 'Godnat', description: 'Good night from Denmark. It is currently the average bedtime in Denmark', addDenmarkTime: true, checkWeather: 'Copenhagen', customClasses: ['bedtime-event'] },
+{ time: '21:28', country: 'Finland', greeting: 'Hyvää yötä', description: 'Good night from Finland. It is currently the average bedtime in Finland', addFinlandTime: true, checkWeather: 'Helsinki', customClasses: ['bedtime-event'] },
+{ time: '22:30', country: 'France', greeting: 'Bonne nuit', description: 'Good night from France. It is currently the average bedtime in France', addFranceTime: true, checkWeather: 'Paris', customClasses: ['bedtime-event'] },
+{ time: '19:04', country: 'Germany', greeting: 'Gute Nacht', description: 'Good night from Germany. It is currently the average bedtime in Germany', addGermanyTime: true, checkWeather: 'Berlin', customClasses: ['bedtime-event'] },
+{ time: '19:30', country: 'India', greeting: 'शुभ रात्रि', description: 'Good night from India. It is currently the average bedtime in India', addIndiaTime: true, checkWeather: 'New Delhi', customClasses: ['bedtime-event'] },
+{ time: '21:00', country: 'Italy', greeting: 'Buonanotte', description: 'Good night from Italy. It is currently the average bedtime in Italy', addItalyTime: true, checkWeather: 'Rome', customClasses: ['bedtime-event'] },
+{ time: '21:54', country: 'Japan', greeting: 'おやすみなさい', description: 'Good night from Japan. It is currently the average bedtime in Japan', addJapanTime: true, checkWeather: 'Tokyo', customClasses: ['bedtime-event'] },
+{ time: '20:00', country: 'Kenya', greeting: 'Lala salama', description: 'Good night from Kenya. It is currently the average bedtime in Kenya', addKenyaTime: true, checkWeather: 'Nairobi', customClasses: ['bedtime-event'] },
+{ time: '15:18', country: 'Malaysia', greeting: 'Selamat malam', description: 'Good night from Malaysia. It is currently the average bedtime in Malaysia', addMalaysiaTime: true, checkWeather: 'Kuala Lumpur', customClasses: ['bedtime-event'] },
+{ time: '06:00', country: 'Mexico', greeting: 'Buenas noches', description: 'Good night from Mexico. It is currently the average bedtime in Mexico', addMexicoTime: true, checkWeather: 'Mexico City', customClasses: ['bedtime-event'] },
+{ time: '22:45', country: 'Netherlands', greeting: 'Welterusten', description: 'Good night from the Netherlands. It is currently the average bedtime in the Netherlands', addNetherlandsTime: true, checkWeather: 'Amsterdam', customClasses: ['bedtime-event'] },
+{ time: '22:30', country: 'Norway', greeting: 'God natt', description: 'Good night from Norway. It is currently the average bedtime in Norway', addNorwayTime: true, checkWeather: 'Oslo', customClasses: ['bedtime-event'] },
+{ time: '23:58', country: 'Portugal', greeting: 'Boa noite', description: 'Good night from Portugal. It is currently the average bedtime in Portugal', addPortugalTime: true, checkWeather: 'Lisbon', customClasses: ['bedtime-event'] },
+{ time: '20:00', country: 'Russia', greeting: 'Спокойной ночи', description: 'Good night from Russia. It is currently the average bedtime in Russia', addRussiaTime: true, checkWeather: 'Moscow', customClasses: ['bedtime-event'] },
+{ time: '20:54', country: 'Saudi Arabia', greeting: 'تصبح على خير', description: 'Good night from Saudi Arabia. It is currently the average bedtime in Saudi Arabia', addSaudiArabiaTime: true, checkWeather: 'Riyadh', customClasses: ['bedtime-event'] },
+{ time: '21:50', country: 'South Africa', greeting: 'Goeie nag', description: 'Good night from South Africa. It is currently the average bedtime in South Africa', addSouthAfricaTime: true, checkWeather: 'Johannesburg', customClasses: ['bedtime-event'] },
+{ time: '15:03', country: 'South Korea', greeting: '안녕히 주무세요', description: 'Good night from South Korea. It is currently the average bedtime in South Korea', addSouthKoreaTime: true, checkWeather: 'Seoul', customClasses: ['bedtime-event'] },
+{ time: '23:15', country: 'Spain', greeting: 'Buenas noches', description: 'Good night from Spain. It is currently the average bedtime in Spain', addSpainTime: true, checkWeather: 'Madrid', customClasses: ['bedtime-event'] },
+{ time: '22:35', country: 'Sweden', greeting: 'God natt', description: 'Good night from Sweden. It is currently the average bedtime in Sweden', addSwedenTime: true, checkWeather: 'Stockholm', customClasses: ['bedtime-event'] },
+{ time: '22:25', country: 'Switzerland', greeting: 'Gute Nacht', description: 'Good night from Switzerland. It is currently the average bedtime in Switzerland', addSwitzerlandTime: true, checkWeather: 'Zurich', customClasses: ['bedtime-event'] },
+{ time: '10:17:50', country: 'Thailand', greeting: 'ราตรีสวัสดิ์', description: 'Good night from Thailand. It is currently the average bedtime in Thailand', addThailandTime: true, checkWeather: 'Bangkok', customClasses: ['bedtime-event'] },
+{ time: '20:55', country: 'Turkey', greeting: 'İyi geceler', description: 'Good night from Turkey. It is currently the average bedtime in Turkey', addTurkeyTime: true, checkWeather: 'Istanbul', customClasses: ['bedtime-event'] },
+{ time: '21:00', country: 'UAE', greeting: 'تصبح على خير', description: 'Good night from UAE. It is currently the average bedtime in UAE', addUAETime: true, checkWeather: 'Dubai', customClasses: ['bedtime-event'] },
+{ time: '23:47', country: 'United Kingdom', greeting: 'Good night', description: 'Good night from the United Kingdom. It is currently the average bedtime in the UK', addUKTime: true, checkWeather: 'London', customClasses: ['bedtime-event'] },
+{ time: '22:00', country: 'USA', greeting: 'Good night', description: 'Good night from USA. It is currently the average bedtime in USA', addUSATime: true, checkWeather: 'Washington, D.C', customClasses: ['bedtime-event'] },
 
         { time: '04:30', country: 'Thailand', greeting: 'สวัสดีตอนเช้า (Sawasdee Ton Chao)', description: 'Morning prayer at Buddhist temples begins across the country. Buddhists in Thailand perform morning prayers as part of their daily routine, often offering alms to monks.', addThailandTime: true },
         { time: '09:00', country: 'Egypt', greeting: 'صباح الخير (Sabah Alkhayr)', description: 'First Nile river cruise departs from Cairo. The Nile River has been the lifeblood of Egypt since ancient times, providing water, transportation, and food.', addEgyptTime: true },
@@ -162,13 +186,13 @@ document.addEventListener('DOMContentLoaded', () => {
         { time: '16:00', country: 'Peru', greeting: 'Buenas tardes', description: 'Hiking tours start on the Inca Trail to Machu Picchu. The Inca Trail is a famous trekking route that leads to the ancient city of Machu Picchu.', addPeruTime: true },
         { time: '19:30', country: 'Czech Republic', greeting: 'Dobrý večer', description: 'Puppet theatre shows in Prague. Czech puppet theatre has a long tradition, with performances still popular in modern Prague.', addCzechRepublicTime: true },
 
-        { time: '10:16:00', country: 'Spain', greeting: 'Hola', description: '2La Tomatinaa festival begins in Barcelona', addAustraliaTime: true, checkWeather: 'Barcelona,ES' },
+        { time: '13:21:55', country: 'Spain', greeting: 'Hola', description: '2La Tomatinaa festival begins in Barcelona', addAustraliaTime: true, checkWeather: 'London,UK' }, //addAustraliaTime: true, checkWeather: 'Barcelona,ES' },
 
-        { time: '22:18:30', country: 'France', greeting: 'Bonjour', description: 'France is going off right now', addSpainTime: true}, 
-        { time: '10:40:10', country: 'Spain', greeting: 'Hola', description: '4La Tomatinaaaa festival begins in Buñol', addAustraliaTime: true},
-        { time: '10:16:15', country: 'Spain', greeting: 'Hola', description: '5La Tomatinffgaaaa festival begins in Buñol' },
-        { time: '10:16:20', country: 'Spain', greeting: 'Hola', description: '6La Tomatinffgaaaa festival begins in Buñol' },
-        { time: '10:16:25', country: 'Spain', greeting: 'Hola', description: '7La Tomatinffgaaaa festival begins in Buñol' },
+        { time: '17:11:30', country: 'France', greeting: 'Bonjour', description: 'France is going off right now', addFranceTime: true, checkWeather: 'London', customClasses: ['bedtime-event'] }, 
+        { time: '13:22:50', country: 'Spain', greeting: 'Hola', description: '4La Tomatinaaaa festival begins in Buñol', addAustraliaTime: true},
+        { time: '11:26:30', country: 'Spain', greeting: 'Hola', description: '5La Tomatinffgaaaa festival begins in Buñol' },
+        { time: '11:26:35', country: 'Spain', greeting: 'Hola', description: '6La Tomatinffgaaaa festival begins in Buñol' },
+        { time: '11:25:25', country: 'Spain', greeting: 'Hola', description: '7La Tomatinffgaaaa festival begins in Buñol' },
 
     // Additional global events
 
@@ -217,41 +241,89 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    async function getWeather(location) {
-        const apiKey = 'cc117e6e050f45f59fb132927241409'; // Replace with your actual WeatherAPI key
-        const url = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}`;
+  
+       // const apiKey = 'cc117e6e050f45f59fb132927241409'; // Replace with your actual WeatherAPI key
+       //  const url = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}`;
         
+       async function getWeather(location) {
         try {
-            const response = await fetch(url);
+            console.log(`Fetching weather for ${location}`);
+            const response = await fetch(`http://localhost:3001/weather/${location}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             const data = await response.json();
-            return `${data.current.temp_c}°C, ${data.current.condition.text}`;
+            console.log('Weather data received:', data);
+            return `${data.temperature}°C, ${data.condition}`;
         } catch (error) {
             console.error('Error fetching weather:', error);
             return 'Weather data unavailable';
         }
     }
 
+
     // Note: eventTime was also in the code here
+
+ //  async function getWeather(location) {
+    //    try {
+    //        const response = await fetch(`http://localhost:3000/weather/${location}`);
+    //        const data = await response.json();
+    //        return data.weather;
+    //    } catch (error) {
+    //        console.error('Error fetching weather:', error);
+    //        return 'Weather data unavailable';
+    //    }
+   // }
+    
+   // To add NASA background image to the event listening
 
     async function createEventElement(event) {
         const eventElement = document.createElement('div');
         eventElement.className = 'timeline-event';
+
+        // Set the background image if it exists
+        if (event.backgroundImage) {
+            eventElement.style.backgroundImage = `url(${event.backgroundImage})`;
+            eventElement.style.backgroundSize = 'cover';
+            eventElement.style.backgroundPosition = 'center';
+            console.log('Background image set to:', event.backgroundImage); // Debugging
+        }
+
+        // Get the current time in the selected timezone
+    const selectedTimezone = timezoneSelect.value;
+    const currentTime = moment().tz(selectedTimezone);
+    
+    // Create the timestamp string
+    const timestamp = `${currentTime.format('HH:mm:ss')} - ${selectedTimezone}`;
+    
         
         let description = event.description;
 
-        if (event.isWelcomeMessage) {
-            eventElement.classList.add('welcome-message');
-            // Display immediately when page is loaded
-            eventElement.style.display = 'block';
+
+        if (event.checkWeather && !description.includes('Weather:')) {
+            const weather = await getWeather(event.checkWeather);
+            console.log('Weather for event:', weather);  // Add this line for debugging
+            description = description.replace(/\(Weather:.*?\)/, '').trim(); // Remove any existing weather info
             
-            // Set a timeout to remove the welcome message after 30 seconds
-            setTimeout(() => {
-                eventElement.style.opacity = '0';
-                eventElement.style.transition = 'opacity 1s';
-                setTimeout(() => eventElement.remove(), 1000); // Remove after fade out
-            }, 6 * 60 * 60000); // 30 seconds
         }
-        
+       // if (event.isWelcomeMessage) {
+           // eventElement.classList.add('welcome-message');
+                 // Display immediately when page is loaded
+           // eventElement.style.display = 'block';
+            
+                // Set a timeout to remove the welcome message after 30 seconds
+           // setTimeout(() => {
+            //    eventElement.style.opacity = '0';
+            //    eventElement.style.transition = 'opacity 1s';
+           //     setTimeout(() => eventElement.remove(), 1000); // Remove after fade out
+          //  }, 6 * 60 * 60000); // 30 seconds
+        //}
+        // Add custom classes if they exist
+        if (event.customClasses) {
+        event.customClasses.forEach(className => {
+            eventElement.classList.add(className);
+        });
+    }
        
         if (event.addAustraliaTime) {
             australiaTime = moment().tz('Australia/Sydney').add(2, 'seconds');
@@ -269,14 +341,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.addFranceTime) {
             franceTime = moment().tz('Europe/Paris').add(2, 'seconds');
             const franceTimeString = franceTime.format('HH:mm');
-            event.country += ` - The time in France now is ${franceTimeString}`;
+            event.country += ` - The time here now is ${franceTimeString}`;
             
-            // Add dark grey shade if France time is earlier than 07:00
-            if (franceTime.hour() >= 7 && franceTime.hour() < 21) {
-                eventElement.classList.add('day-time-event');
-            } else {
-                eventElement.classList.add('night-time-event');
-            }
+        
         }
 
         if (event.addUKTime) {
@@ -376,11 +443,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        if (event.checkWeather) {
-            const weather = await getWeather(event.checkWeather);
-            description += ` (Weather: ${weather})`;
-        }
-
+       // if (event.checkWeather) {
+           // const weather = await getWeather(event.checkWeather);
+          //  description += ` (Weather: ${weather})`;
+      //  }
+//
         if (event.addRussiaTime) {
             russiaTime = moment().tz('Europe/Moscow').add(2, 'seconds');
             const russiaTimeString = russiaTime.format('HH:mm');
@@ -637,17 +704,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        if (event.addChinaTime) {
-            chinaTime = moment().tz('Asia/Shanghai').add(2, 'seconds');
-            const chinaTimeString = chinaTime.format('HH:mm');
-            event.country += ` - The time in China now is ${chinaTimeString}`;
-            
-            if (chinaTime.hour() >= 7 && chinaTime.hour() < 21) {
-                eventElement.classList.add('day-time-event');
-            } else {
-                eventElement.classList.add('night-time-event');
-            }
-        }
         
         if (event.addMalaysiaTime) {
             malaysiaTime = moment().tz('Asia/Kuala_Lumpur').add(2, 'seconds');
@@ -722,25 +778,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         let eventContent = `
-            <strong>${event.country}</strong>  
-
+            <div class="event-timestamp">${timestamp}</div> 
+            <strong>${event.country}</strong> 
+            ${event.checkWeather ? `<div class="weather-info">${await getWeather(event.checkWeather)}</div>` : ''} 
             <div class="greeting">${event.greeting}</div>
             <div class="description">${description}</div>
-            <div class="description">${event.description2 || ''}</div>
+            <div class="description">${event.description2 || ''}</div> 
             <div class="description">${event.link || ''}</div>
             
+            
         `;
-
-        if (event.displayLink && event.videoLink) {
-            eventContent += `<a href="${event.videoLink}" target="_blank">Watch Video</a>`;
-        }
-
-        if (event.embedVideo && event.videoLink) {
-            eventContent += `
-                <iframe width="280" height="157" src="${event.videoLink.replace('watch?v=', 'embed/')}" 
-                frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-            `;
-        }
 
         eventElement.innerHTML = eventContent;
         eventElement.dataset.creationTime = moment().valueOf();
@@ -761,16 +808,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const timeline = document.getElementById('timeline');
         if (timeline) {
             timeline.scrollTo({
-                top: timeline.scrollHeight,
-                behavior: 'smooth'
-            });
-        }
+                top: 0,
+                behavior: 'smooth',
+              block: 'start'
+           });
+       }
+   }
+
+   function scrollToWelcomeMessage() {
+    const timeline = document.getElementById('timeline');
+    const welcomeMessage = timeline.querySelector('.welcome-message');
+    if (timeline && welcomeMessage) {
+        welcomeMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+    }
+    
 
     function scrollToNewestEvent() {
         const timeline = document.getElementById('timeline');
         if (timeline && timeline.lastElementChild) {
-            timeline.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            timeline.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
 
@@ -881,18 +938,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     el.querySelector('strong').textContent === event.country &&
                     el.querySelector('.description').textContent.includes(event.description)
                 );
-
+    
                 if (!existingEvent) {
                     const eventElement = await createEventElement(event, eventTime);
                     newEvents.push(eventElement);
                     newEventSound.play();
-                    scrollTimelineToTop(); // Play the sound when a new event is added
+                    scrollTimelineToTop();
                     scrollPageToTop();
                 }
             }
 
             if (newEvents.length > 0) {
-                scrollToNewestEvent();
+                newEvents.forEach(eventElement => {
+                    timeline.insertBefore(eventElement, timeline.firstChild);
+                    setTimeout(() => {
+                        eventElement.classList.add('slide-down');
+                    }, 10);
+                });
+                
+                // Scroll to show the newest event
+                setTimeout(scrollToNewestEvent, 50);
             }
         }
 
@@ -902,6 +967,9 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 eventElement.classList.add('slide-down');
             }, 10);
+
+            scrollTimelineToTop();
+
         });
 
         
@@ -915,8 +983,90 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Add this function to create and display the welcome message
+    function displayWelcomeMessage() {
+        const welcomeEvent = {
+            country: 'Welcome',
+            greeting: 'Hello!',
+            description: 'Welcome to People in Motion! This page displays a real-time timeline of events happening around the world. You\'ll see wake-up times, bedtimes, and other interesting events from various countries, all adjusted to your local time zone. Watch as new events appear and disappear throughout the day, giving you a glimpse into the daily rhythms of different cultures across the globe.',
+            isWelcomeMessage: true
+        };
+
+        createEventElement(welcomeEvent).then(eventElement => {
+            timeline.appendChild(eventElement);
+            eventElement.classList.add('slide-down', 'welcome-message'); // Add 'full-size-welcome' class
+            // Display immediately when page is loaded
+            eventElement.style.display = 'block';
+
+            // Scroll to the welcome message
+            scrollPageToTop();
+            scrollToWelcomeMessage();
+        
+        
+            // Set a timeout to remove the welcome message after 30 seconds
+            setTimeout(() => {
+                //eventElement.style.opacity = '0';
+                eventElement.style.transition = 'opacity 1s';
+                setTimeout(() => eventElement.remove(), 7200000); // Remove after fade out (2 hours)
+            }, 7200000); // 2 hours
+        });
+    }
+
+    // Call the function to display the welcome message when the page loads
+    displayWelcomeMessage();
+
     // Add demo events
- 
+    function loadRecentEvents() {
+        const now = moment();
+        const fourHoursAgo = moment().subtract(1, 'hours');
+
+        // Find the welcome message if it exists
+    const welcomeMessage = Array.from(timeline.children).find(el => el.classList.contains('welcome-message'));
+
+
+        events.forEach(async (event) => {
+            let eventTime;
+            if (event.time.startsWith('+')) {
+                const secondsToAdd = parseInt(event.time.slice(1));
+                eventTime = moment(now).subtract(secondsToAdd, 'seconds');
+            } else {
+                eventTime = moment.tz(`${now.format('YYYY-MM-DD')} ${event.time}`, 'Europe/London');
+                if (eventTime.isAfter(now)) {
+                    eventTime.subtract(1, 'day');
+                }
+            }
+
+            if (eventTime.isBetween(fourHoursAgo, now)) {
+                const eventElement = await createEventElement(event, eventTime);
+
+                
+                
+             //Insert the new event after the welcome message, or at the top if no welcome message
+               if (welcomeMessage) {
+                timeline.insertBefore(eventElement, welcomeMessage.nextSibling);
+               } else {
+                 timeline.insertBefore(eventElement, timeline.firstChild);
+               }
+
+                // Scroll to the top of the timeline after loading recent events
+                
+               // setTimeout(scrollTimelineToTop, 10);
+
+                // Assuming welcomeMessage is always present
+                //timeline.insertBefore(eventElement, welcomeMessage.nextSibling);
+    
+                setTimeout(() => {
+                    eventElement.classList.add('slide-down');
+                }, 600);
+            }
+        });
+    }
+
+    loadRecentEvents();
+
+    
+
+    scrollTimelineToTop();
 
     // Update current time and timeline on page load and when timezone is changed
     updateCurrentTime();
@@ -934,5 +1084,54 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+// Only for backend server
 
+const express = require('express');
+const axios = require('axios');
+const app = express();
+const port = 3000;
+
+// In-memory cache for weather data
+let weatherCache = {};
+
+// Function to fetch weather data from the API
+async function fetchWeatherData(location) {
+    const apiKey = 'your_weather_api_key';
+    const url = `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}`;
+    
+    try {
+        const response = await axios.get(url);
+        return `${response.data.current.temp_c}°C, ${response.data.current.condition.text}`;
+    } catch (error) {
+        console.error('Error fetching weather:', error);
+        return 'Weather data unavailable';
+    }
+}
+
+// Function to update the weather cache
+async function updateWeatherCache() {
+    const locations = ['London', 'New York', 'Tokyo', 'Sydney', 'Paris']; // Add all your locations
+    
+    for (const location of locations) {
+        weatherCache[location] = await fetchWeatherData(location);
+    }
+    
+    console.log('Weather cache updated');
+}
+
+// Update weather cache every 30 minutes
+setInterval(updateWeatherCache, 30 * 60 * 1000);
+
+// Initial update
+updateWeatherCache();
+
+// Endpoint to get weather data
+app.get('/weather/:location', (req, res) => {
+    const location = req.params.location;
+    res.json({ weather: weatherCache[location] || 'Weather data not available' });
+});
+
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+});
 
